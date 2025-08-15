@@ -59,7 +59,7 @@ Dự án áp dụng **Clean Architecture** gồm 4 tầng:
 ---
 
 ## 📂 Cấu trúc thư mục
-
+```plaintext
 ResAuthApi.sln
  ├─ ResAuthApi.Api/
  │   ├─ Controllers/
@@ -91,19 +91,19 @@ ResAuthApi.sln
      │   └─ DapperRefreshTokenRepository.cs
      ├─ SqlConnectionFactory.cs
      └─ ResAuthApi.Infrastructure.csproj
-Ops/
- └─ sql/Init.sql
+Sql/
+ └─ Init.sql
 Keys/
  ├─ private.key     (PKCS#8 PEM, RSA PRIVATE KEY)
  └─ public.key      (SubjectPublicKeyInfo PEM)
-
+```
 
 ## 2. Cài đặt .NET SDK
 Yêu cầu **.NET 8.0** trở lên.
 
 ## 3. Cấu hình CSDL
-- Tạo database **SQL Server**.
-- Chạy script trong `ops/sql/init.sql`.
+- Tạo database **MySql**.
+- Chạy script trong `Sql/init.sql`.
 
 ## 4. Cấu hình Azure AD
 Lấy các thông tin:
@@ -119,7 +119,7 @@ Lấy các thông tin:
 - **JWT** (RS256)
 - **Serilog**
 - **Swagger**
-- **SQL Server**
+- **MySql**
 - **Redis** (chạy trên docker)
 - **signalR**
 
@@ -140,28 +140,29 @@ App A login -> nhận access_token + refresh_token -> lưu refresh_token (Secure
 App B mở -> tìm refresh_token -> gọi Auth API /refresh -> nhận access_token mới -> dùng
 App A quay lại -> cũng làm như App B -> SSO hoạt động
 
-
-          +----------------------+                 +-----------------------+
- Web      |  hr.local.com / crm  |                 | Mobile App (RN/Native)|
-          +----------+-----------+                 +-----------+-----------+
-                     |                                         |
-       (chưa token)  |                                         |
-           1. /refresh (cookie)                          1'. /refresh (body)
-                     |                                         |
-                     v                                         v
-          +----------+-----------+                 +-----------+-----------+
-          |   Auth Service @     |                 |  Auth Service @       |
-          | api-auth.local.com   |  (cùng 1 BE)    | api-auth.local.com    |
-          +----------+-----------+                 +-----------+-----------+
-                     |                                         |
-            Đọc cookie refresh_token                 Đọc body.refresh_token
-                     |                                         |
-             OK -> cấp access_token                  OK -> cấp access_token
-                     |                                         |
-                     v                                         v
-             Web dùng access_token                    Mobile dùng access_token
-             (localStorage / memory)                  (SecureStorage/Keychain)
-
+## 🔐 Luồng xác thực Web & Mobile
+```plaintext
+ +----------------------+                 +-----------------------+
+|  Web: hr.local.com / crm  |           | Mobile App (RN/Native) |
++----------+-----------+                 +-----------+-----------+
+           |                                         |
+(chưa token) |                                       |
+    1. /refresh (cookie)                      1'. /refresh (body)
+           |                                         |
+           v                                         v
++----------+-----------+                 +-----------+-----------+
+|   Auth Service @     |                 |  Auth Service @       |
+| api-auth.local.com   |  (cùng 1 BE)    | api-auth.local.com    |
++----------+-----------+                 +-----------+-----------+
+           |                                         |
+  Đọc cookie refresh_token              Đọc body.refresh_token
+           |                                         |
+   OK -> cấp access_token                OK -> cấp access_token
+           |                                         |
+           v                                         v
+Web dùng access_token                  Mobile dùng access_token  
+(localStorage / memory)                (SecureStorage / Keychain)
+```
 
 - khi bắm logout thì sẽ logout hết các web hoặc ứng dụng (theo web/mobile), chưa force all
 
