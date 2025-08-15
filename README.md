@@ -10,11 +10,10 @@ Hỗ trợ cơ chế **Refresh Token Rotation**, thu hồi token, và dọn dẹ
 1. [Tính năng](#-tính-năng)
 2. [Kiến trúc](#-kiến-trúc)
 3. [Cấu trúc thư mục](#-cấu-trúc-thư-mục)
-4. [Cài đặt](#-cài-đặt)
-5. [Cấu hình](#-cấu-hình)
-6. [API Endpoints](#-api-endpoints)
-7. [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
-8. [Ghi chú bảo mật](#-ghi-chú-bảo-mật)
+4. [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
+5. [Ghi chú bảo mật](#-ghi-chú-bảo-mật)
+6. [Luồng xác thực Web & Mobile](#-luồng-xác-thực-web--mobile)
+7. [Hướng dẫn cách chạy dev](#-hướng-dẫn-cách-chạy-dev)
 
 ---
 
@@ -168,9 +167,10 @@ Web dùng access_token                  Mobile dùng access_token
 
 ## Hướng dẫn cách chạy dev
 1. Cài docker desktop để chạy Redis. Cài xong chạy lệnh bên dưới
+```bash
    docker pull redis:latest
    docker run -d --name redis -p 6379:6379 redis:latest redis-server --requirepass Resredis@123
-
+```
 2. Tạo mkcert để validate FE
 Bước 1 – Cài đặt mkcert
 
@@ -184,9 +184,9 @@ Tải file .exe phù hợp với Windows (thường là mkcert-vX.X.X-windows-am
 Bước 2 – Cài CA (Certificate Authority) local
 
 Mở PowerShell (Run as administrator) và chạy:
-
+```bash
 mkcert -install
-
+```
 
 Lệnh này sẽ:
 
@@ -199,31 +199,36 @@ Import vào store của các trình duyệt (Chrome, Edge, v.v.).
 Bước 3 – Tạo wildcard certificate
 
 Trong terminal tại thư mục project FE hoặc thư mục lưu cert, chạy:
-
+```bash
 mkcert "*.local.com"
-
+```
 
 Kết quả sẽ ra 2 file:
-
+```bash
 _wildcard.local.com.pem   (certificate)
 _wildcard.local.com-key.pem (private key)
+```
 
 ## Cách tạo api-auth.local.com.p12
+```bash
 mkcert api-auth.local.com
 openssl pkcs12 -export \
   -out api-auth.local.com.p12 \
   -inkey api-auth.local.com-key.pem \
   -in api-auth.local.com.pem \
   -password pass:123456  
-
+```
 add host
+```plaintext
 127.0.0.1 hr.local.com
 127.0.0.1 crm.local.com
 127.0.0.1 api-auth.local.com
 127.0.0.1 api-hr.local.com
 127.0.0.1 api-crm.local.com
+```
 
 Test chạy lên copy link bên dưới dán vào trình duyệt
+```plaintext
 https://login.microsoftonline.com/{TenantId}/oauth2/v2.0/authorize
 ?client_id={ClientId}
 &response_type=code
@@ -231,3 +236,4 @@ https://login.microsoftonline.com/{TenantId}/oauth2/v2.0/authorize
 &response_mode=query
 &scope=openid%20profile%20email
 &state=12345
+```
