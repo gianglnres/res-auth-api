@@ -64,8 +64,13 @@ ResAuthApi.sln
  │   ├─ Controllers/
  │   │   ├─ AuthController.cs
  │   │   └─ KeysController.cs
+ │   ├─ Hub/
+     │   └─ LogoutHub.cs
+ │   ├─ Middlewares/
+ │   │   └─ ApiKeyMiddleware.cs
  │   ├─ Services/
  │   │   ├─ AzureAdService.cs
+ │   │   ├─ LogoutNotifier.cs
  │   │   ├─ TokenService.cs
  │   │   └─ RefreshCleanupService.cs
  │   ├─ Utils/
@@ -129,16 +134,17 @@ Lấy các thông tin:
 - Cần **HTTPS** khi chạy production.
 
 ## Flow
+```plaintext
 - Lần đầu User login Azure AD -> ResAuthApi đọc thông tin token lấy Email, Name của user. 
   - Tạo access_token (Exp 1h) nội bộ ký theo chuẩn RAS và cached lại trên MemoryCache.
   - Tạo refresh_token lưu vào DB (Exp 7d)
   - Tạo cookie cho refresh_token theo Domain (Domain = ".local.com")
-  - Các FE vào check cookei bằng cách gọi api /refresh nếu ko có thì login
+  - Các FE vào check cookie bằng cách gọi api /refresh nếu ko có thì login
 
 App A login -> nhận access_token + refresh_token -> lưu refresh_token (Secure Storage)
 App B mở -> tìm refresh_token -> gọi Auth API /refresh -> nhận access_token mới -> dùng
 App A quay lại -> cũng làm như App B -> SSO hoạt động
-
+```
 ## 🔐 Luồng xác thực Web & Mobile
 ```plaintext
  +----------------------+                 +-----------------------+

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using ResAuthApi.Api.Hubs;
+using ResAuthApi.Api.Middleware;
 using ResAuthApi.Api.Services;
 using ResAuthApi.Api.Utils;
 using ResAuthApi.Application.Interfaces;
@@ -106,6 +107,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("Spa");
+
+// Middleware API key
+app.UseMiddleware<ApiKeyMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
